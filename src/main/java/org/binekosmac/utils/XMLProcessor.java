@@ -1,7 +1,9 @@
 package org.binekosmac.utils;
 
-import org.binekosmac.model.ExchangeRateList;
+import org.binekosmac.model.DailyRates;
+import org.binekosmac.model.DailyRatesWrapper;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.BufferedReader;
@@ -14,7 +16,7 @@ public class XMLProcessor {
 
     private static final String XML_SOURCE_URL = "https://www.bsi.si/_data/tecajnice/dtecbs-l.xml";
 
-    public ExchangeRateList processXML() throws Exception {
+    public DailyRatesWrapper processXML() throws Exception {
         String xmlData = fetchXML();
         return unmarshalXML(xmlData);
     }
@@ -42,11 +44,13 @@ public class XMLProcessor {
         }
     }
 
-    private ExchangeRateList unmarshalXML(String xmlData) throws Exception {
-        JAXBContext jaxbContext = JAXBContext.newInstance(ExchangeRateList.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+    private DailyRatesWrapper parseXmlString(String xmlData) {
+        //JAXBContext jaxbContext = JAXBContext.newInstance(DailyRatesWrapper.class);
+        // Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-        StringReader reader = new StringReader(xmlData);
-        return (ExchangeRateList) unmarshaller.unmarshal(reader);
+        // StringReader reader = new StringReader(xmlData);
+        // return (DailyRatesWrapper) unmarshaller.unmarshal(reader);
+        DailyRatesWrapper dailyRatesWrapper = JAXB.unmarshal(new StringReader(xmlData), DailyRatesWrapper.class);
+        return dailyRatesWrapper;
     }
 }
