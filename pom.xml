@@ -19,10 +19,16 @@
     <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-xml</artifactId>
-        <version>2.11.1</version>
+        <version>2.15.3</version>
     </dependency>
-
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.3</version>
+        </dependency>
+
+
+    <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-controls</artifactId>
         <version>13</version>

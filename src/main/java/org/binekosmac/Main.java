@@ -1,32 +1,26 @@
 package org.binekosmac;
 
-import org.binekosmac.database.DatabaseConnection;
-import org.binekosmac.model.DailyRatesWrapper;
 import org.binekosmac.database.*;
-import org.binekosmac.utils.XMLProcessor;
+import org.binekosmac.model.*;
+import org.binekosmac.utils.XmlDeserializer;
+
 
 public class Main {
     public static void main(String[] args) {
         try {
-            DatabaseConnection.getConnection();
+            DatabaseSetup.initialize();
 
-            // Create an instance of XMLProcessor
-            XMLProcessor xmlProcessor = new XMLProcessor();
+            XmlDeserializer xmlDeserializer = new XmlDeserializer();
+            DtecBS dtecBS = xmlDeserializer.processXML();
 
-            // Process the XML and retrieve the data
-            DailyRatesWrapper dailyRatesWrapper = xmlProcessor.processXML
-                    (); // This method should now return DailyRatesWrapper
+//                DatabaseSaver dbSaver = new DatabaseSaver();
+//                dbSaver.save(dtecBS);
 
+            DatabaseConnection.closeConnection();
 
-
-                // Save the data to the database
-                DatabaseSaver dbSaver = new DatabaseSaver(); // Ensure you have a constructor or a static method for connection initialization
-                dbSaver.saveDailyRates(dailyRatesWrapper); // You may need to adjust the saveDailyRates method depending on how you want to save multiple records
-
-
-        } catch (Exception e) {
-            // Log and handle exceptions appropriately - Don't leave this block empty.
-            e.printStackTrace(); // For simplicity, we're just printing the stack trace. Consider using logging software.
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("An error occured: " +e.getMessage());
+            }
     }
 }

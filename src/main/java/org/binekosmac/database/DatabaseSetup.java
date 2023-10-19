@@ -6,13 +6,13 @@ import java.sql.Statement;
 
 public class DatabaseSetup {
 
-    private static final String EXCHANGE_RATES_TABLE_CREATION_SQL =
-            "CREATE TABLE IF NOT EXISTS exchange_rates (" +
+    private static final String TECAJNICE_TABLE_CREATION_SQL =
+            "CREATE TABLE IF NOT EXISTS tecajnice (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "date DATE NOT NULL, " +
-                    "currency_acronym VARCHAR(3) NOT NULL, " +
-                    "currency_code INT NOT NULL, " +
-                    "exchange_rate DECIMAL(15, 8) NOT NULL" +
+                    "datum DATE NOT NULL, " +
+                    "oznaka VARCHAR(3) NOT NULL, " +
+                    "sifra INT NOT NULL, " +
+                    "vrednost DECIMAL(10, 8) NOT NULL" +
                     ");";
 
 
@@ -21,7 +21,7 @@ public class DatabaseSetup {
         try (Connection connection = DatabaseConnection.getConnection();
              Statement stmt = connection.createStatement()) {
 
-            stmt.executeUpdate(EXCHANGE_RATES_TABLE_CREATION_SQL);
+            stmt.executeUpdate(TECAJNICE_TABLE_CREATION_SQL);
 
         } catch (SQLException e) {
             System.err.println("Error setting up database: " + e.getMessage());

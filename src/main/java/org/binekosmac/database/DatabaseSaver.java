@@ -1,52 +1,39 @@
 package org.binekosmac.database;
 
-import org.binekosmac.model.DailyRates;
-import org.binekosmac.model.DailyRatesWrapper;
-import org.binekosmac.model.ExchangeRate;
+import org.binekosmac.model.DtecBS;
+import org.binekosmac.model.Tecaj;
+import org.binekosmac.model.Tecajnica;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
+import java.time.LocalDate;
 public class DatabaseSaver {
 
-    public void saveDailyRates(DailyRatesWrapper dailyRatesWrapper) throws Exception {
-        String sql = "INSERT INTO exchange_rates (date, currency_acronym, currency_code, exchange_rate) VALUES (?, ?, ?, ?)";
+    private static final String INSERT_EXCHANGE_RATE_SQL =
+            "INSERT INTO exchange_rates (datum, oznaka, sifra, vrednost) VALUES (?, ?, ?, ?)";
 
-        try  {
-            for(DailyRates rates : dailyRatesWrapper.getDailyRatesList()){
-                Connection connection = DatabaseConnection.getConnection();
-                PreparedStatement pstmt = connection.prepareStatement(sql);
+    public void save(DtecBS dtecBS) throws Exception {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(INSERT_EXCHANGE_RATE_SQL)) {
 
+            for (Tecajnica tecajnica : dtecBS.getTecajnica()) {
+                LocalDate dateForSql = tecajnica.getDatum();
 
-                // Parse the date from the XML
-                SimpleDateFormat xmlDateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                Date dateParsed = xmlDateFormat.parse(rates.getDate());
-
-                // Format the date for SQL
-                SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                String dateForSql = sqlDateFormat.format(dateParsed);
-
-                for (ExchangeRate rate : rates.getExchangeRates()) {
-                    pstmt.setString(1, dateForSql);
-                    pstmt.setString(2, rate.getAcronym());
-                    pstmt.setInt(3, rate.getCode());
-                    pstmt.setDouble(4, rate.getRate());
+                for (Tecaj rate : tecajnica.getTecaj()) {
+                    pstmt.setObject(1, dateForSql);
+                    pstmt.setString(2, rate.getOznaka());
+                    pstmt.setInt(3, rate.getSifra());
+                    pstmt.setDouble(4, rate.getVrednost());
 
                     pstmt.addBatch();
                 }
-
-                // Execute batch insert
-                pstmt.executeBatch();
-
-                System.out.println("Data saved successfully.");
-
             }
-
+            pstmt.executeBatch();
+            System.out.println("Data saved successfully.");
         } catch (SQLException e) {
-            throw new RuntimeException("Error saving exchange rate data to database", e);
+            System.err.println("Error saving exchange rate data to database: " + e.getMessage());
+            throw new RuntimeException("Error saving data to database", e);
         }
     }
 }
