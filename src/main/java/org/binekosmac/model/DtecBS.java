@@ -6,10 +6,10 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
 
-@JacksonXmlRootElement(localName = "DtecBS")
+@JacksonXmlRootElement(localName = "DtecBS", namespace = "http://www.bsi.si")
 public class DtecBS {
 
-    @JacksonXmlElementWrapper(localName = "tecajnica")
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "tecajnica")
     private List<Tecajnica> tecajnice;
 

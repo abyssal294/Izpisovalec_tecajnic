@@ -1,12 +1,14 @@
 package org.binekosmac.model;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 
+@JacksonXmlRootElement(namespace = "http://www.bsi.si")
 public class Tecaj {
-    @JacksonXmlProperty(isAttribute = true)
+    @JacksonXmlProperty(isAttribute = true, localName = "oznaka")
     private String oznaka;
-    @JacksonXmlProperty(isAttribute = true)
+    @JacksonXmlProperty(isAttribute = true, localName = "sifra")
     private Integer sifra;
     @JacksonXmlText
     private Float vrednost;

@@ -1,9 +1,9 @@
 package org.binekosmac.utils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import org.binekosmac.model.*;
 
 import java.io.BufferedReader;
@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class XmlDeserializer {
 
@@ -53,13 +50,11 @@ public class XmlDeserializer {
     }
         private DtecBS deserializeXml(String xmlData) throws IOException {
             XmlMapper xmlMapper = new XmlMapper();
-
-            JavaTimeModule javaTimeModule = new JavaTimeModule();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(formatter));
-            xmlMapper.registerModule(javaTimeModule);
+            xmlMapper.registerModule(new JavaTimeModule());
 
             xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            xmlMapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
+            xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
             return xmlMapper.readValue(xmlData, DtecBS.class);
 
