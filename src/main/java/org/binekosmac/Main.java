@@ -13,10 +13,10 @@ public class Main {
             XmlDeserializer xmlDeserializer = new XmlDeserializer();
             DtecBS dtecBS = xmlDeserializer.processXML();
 
-            System.out.println("Parsed object: " + dtecBS);
+            //System.out.println("Parsed object: " + dtecBS);
 
-//                DatabaseSaver dbSaver = new DatabaseSaver();
-//                dbSaver.save(dtecBS);
+               DatabaseSaver dbSaver = new DatabaseSaver();
+               dbSaver.save(dtecBS);
 
             DatabaseConnection.closeConnection();
 

@@ -6,13 +6,14 @@ import java.sql.Statement;
 
 public class DatabaseSetup {
 
+    private static final String DROP_TECAJNICE_TABLE__SQL = "DROP TABLE IF EXISTS tecajnice";
     private static final String TECAJNICE_TABLE_CREATION_SQL =
             "CREATE TABLE IF NOT EXISTS tecajnice (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
                     "datum DATE NOT NULL, " +
                     "oznaka VARCHAR(3) NOT NULL, " +
                     "sifra INT NOT NULL, " +
-                    "vrednost DECIMAL(10, 8) NOT NULL" +
+                    "vrednost DECIMAL(15, 8) NOT NULL" +
                     ");";
 
 
@@ -20,6 +21,8 @@ public class DatabaseSetup {
     public static void initialize() {
         try (Connection connection = DatabaseConnection.getConnection();
              Statement stmt = connection.createStatement()) {
+
+            stmt.executeUpdate(DROP_TECAJNICE_TABLE__SQL);
 
             stmt.executeUpdate(TECAJNICE_TABLE_CREATION_SQL);
 

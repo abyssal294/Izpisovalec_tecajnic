@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 public class DatabaseSaver {
 
-    private static final String INSERT_EXCHANGE_RATE_SQL =
-            "INSERT INTO exchange_rates (datum, oznaka, sifra, vrednost) VALUES (?, ?, ?, ?)";
+    private static final String INSERT_TECAJNICE_SQL =
+            "INSERT INTO tecajnice (datum, oznaka, sifra, vrednost) VALUES (?, ?, ?, ?)";
 
     public void save(DtecBS dtecBS) throws Exception {
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(INSERT_EXCHANGE_RATE_SQL)) {
+             PreparedStatement pstmt = connection.prepareStatement(INSERT_TECAJNICE_SQL)) {
 
             for (Tecajnica tecajnica : dtecBS.getTecajnica()) {
                 LocalDate dateForSql = tecajnica.getDatum();
