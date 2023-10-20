@@ -2,6 +2,7 @@ package org.binekosmac.ui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -16,6 +17,8 @@ import org.binekosmac.utils.XmlDeserializer;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,30 +26,63 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Osnova
         VBox rootLayout = new VBox(10);
         rootLayout.setPadding(new Insets(10));
 
+        // Naslov
         Label titleLabel = new Label("Prikazovalec tečajev");
         rootLayout.getChildren().add(titleLabel);
 
+        // Datuma
         HBox dateLayout = new HBox(10);
         DatePicker startDatePicker = new DatePicker();
         DatePicker endDatePicker = new DatePicker();
         dateLayout.getChildren().addAll(new Label("Od:"), startDatePicker, new Label("Do:"), endDatePicker);
         rootLayout.getChildren().add(dateLayout);
 
-        ListView<String> currencyListView = new ListView<>();  // Will be populated with currencies later
+        // Izbira valut z informacijami o datumih, ko so podatki na voljo
+        ListView<String> currencyListView = new ListView<>();
         currencyListView.setPrefHeight(150);
         rootLayout.getChildren().add(currencyListView);
         currencyListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        List<String> currencies = Arrays.asList("Ameriški dolar (USD)", "Japonski jen - JPY)", "Bolgarski lev - BGN", "Češka krona - CZK", "Danska krona - DKK", "Britanski funt - GBP", "Madžarski forint - HUF", "Poljski zlot - PLN", "Romunski lev - RON", "Švedska krona - SEK",
-                "Islandska krona - ISK", "Švicarski frank - CHF", "Norveška krona - NOK", "Turška lira - TRY", "Avstralski dolar - AUD", "Kanadski dolar - CAD", "Mehiški peso - MXN (z 2.1.2008)", "Kitajski juan renminbi - CNY", "Hongkonški dolar - HKD", "Indijska rupija - INR (z 2.1.2009)", "Indonezijska rupija - IDR", "Izraelski šakel - ILS", "Južnokorejski von - KRW",
-                "Malezijski ringit - MYR", "Novozelandski dolar - NZD", "Filipinski peso - PHP", "Singapurski dolar - SGD", "Tajski baht - THB", "Južnoafriški rand - ZAR", "Ciprski funt - CYP (nadomestil evro 1.1.2008)", "Slovaška krona - SKK (nadomestil evro 1.1.2009)", "Ruski rubelj - RUB (ni podatkov po 1.3.2022)",
-                "Malteška lira - MTL (nadomestil evro 1.1.2008)", "Latvijski lats - LVL(nadomestil evro 1.1.2014)", "Litvanski litas - LTL (nadomestil evro 1.1.2015)", "Hrvaška kuna - HRK (nadomestil evro 1.1.2023)", "Estonska krona - EEK (nadomestil evro 1.1.2011)");
+        List<String> currencies = Arrays.asList("Ameriški dolar USD", "Japonski jen - JPY", "Bolgarski lev - BGN", "Češka krona - CZK", "Danska krona - DKK", "Britanski funt - GBP", "Madžarski forint - HUF", "Poljski zlot - PLN", "Romunski lev - RON", "Švedska krona - SEK",
+                "Islandska krona - ISK", "Švicarski frank - CHF", "Norveška krona - NOK", "Turška lira - TRY", "Avstralski dolar - AUD", "Kanadski dolar - CAD", "Mehiški peso (z 2.1.2008) - MXN", "Kitajski juan renminbi - CNY", "Hongkonški dolar - HKD", "Indijska rupija (z 2.1.2009) - INR", "Indonezijska rupija - IDR", "Izraelski šakel - ILS", "Južnokorejski von - KRW",
+                "Malezijski ringit - MYR", "Novozelandski dolar - NZD", "Filipinski peso - PHP", "Singapurski dolar - SGD", "Tajski baht - THB", "Južnoafriški rand - ZAR", "Ciprski funt (nadomestil evro 1.1.2008) - CYP", "Slovaška krona (nadomestil evro 1.1.2009) - SKK", "Ruski rubelj (ni podatkov po 1.3.2022) - RUB",
+                "Malteška lira (nadomestil evro 1.1.2008) - MTL", "Latvijski lats (nadomestil evro 1.1.2014) - LVL", "Litvanski litas (nadomestil evro 1.1.2015) - LTL", "Hrvaška kuna (nadomestil evro 1.1.2023) - HRK", "Estonska krona (nadomestil evro 1.1.2011) - EEK");
         currencyListView.getItems().addAll(currencies);
 
-        Button prikazButton = new Button("Prikaz");
-        rootLayout.getChildren().add(prikazButton);
+        // Gumb za prikaz
+        Button processButton = new Button("Prikaz");
+        rootLayout.getChildren().add(processButton);
+
+        // Event listener za gumb za prikaz
+        processButton.setOnAction(e -> {
+            LocalDate startDate = startDatePicker.getValue();
+            LocalDate endDate = endDatePicker.getValue();
+
+        // Error handling za datume
+            if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Napaka");
+                alert.setHeaderText("Prosimo, izberite veljavna datuma");
+                alert.setContentText("Datum 'od:' naj bo pred datumom 'do:' ");
+                alert.showAndWait();
+            }
+            ObservableList<String> selectedItems = currencyListView.getSelectionModel().getSelectedItems();
+            List<String> selectedCurrencies = new ArrayList<>();
+
+            for (String item : selectedItems) {
+                String abbreviation = item.substring(item.length() - 3);
+                selectedCurrencies.add(abbreviation);
+            }
+
+            //process and display data
+            DataProcessor dataProcessor = new DataProcessor();
+            dataProcessor.processData(startDate, endDate, selectedCurrencies);
+        });
+
+
 
 
 
