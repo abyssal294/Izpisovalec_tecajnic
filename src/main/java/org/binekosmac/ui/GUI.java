@@ -150,7 +150,9 @@ public class GUI extends Application {
         Scene scene = new Scene(mainLayout, 800, 400);
         primaryStage.setTitle("Izpis tečajnic");
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
+
 
         Label loadingLabel = new Label("Pripravljam podatke...");
         rootLayout.getChildren().add(loadingLabel);
