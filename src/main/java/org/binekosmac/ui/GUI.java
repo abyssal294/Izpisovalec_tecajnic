@@ -6,20 +6,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.binekosmac.database.DatabaseConnection;
 import org.binekosmac.database.DatabaseSaver;
 import org.binekosmac.database.DatabaseSetup;
 import org.binekosmac.model.DtecBS;
 import org.binekosmac.utils.XmlDeserializer;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +33,7 @@ public class GUI extends Application {
         rootLayout.setPadding(new Insets(10));
 
         // Naslov
-        Label titleLabel = new Label("Prikazovalec tečajnice za evro");
+        Label titleLabel = new Label("Prikaz tečajnic za evro");
         rootLayout.getChildren().add(titleLabel);
 
         // Datuma
@@ -74,18 +72,17 @@ public class GUI extends Application {
         Button processButton = new Button("Prikaz");
         rootLayout.getChildren().add(processButton);
 
-        // Postavitev tabele
+        // Tabela
         TableView<CurrencyRate> currencyTable = new TableView<>();
         TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum");
         TableColumn<CurrencyRate, String> oznakaColumn = new TableColumn<>("Oznaka");
-        TableColumn<CurrencyRate, Integer> sifraColumn = new TableColumn<>("Šifra");
-        TableColumn<CurrencyRate, Double> vrednostColumn = new TableColumn<>("Vrednost");
+        TableColumn<CurrencyRate, Integer> sifraColumn = new TableColumn<>("Šifra valute");
+        TableColumn<CurrencyRate, Double> vrednostColumn = new TableColumn<>("Tečaj");
 
-        // Set up the columns to use property values from CurrencyRate objects
-        datumColumn.setCellValueFactory(new PropertyValueFactory<>("datum"));
-        oznakaColumn.setCellValueFactory(new PropertyValueFactory<>("oznaka"));
-        sifraColumn.setCellValueFactory(new PropertyValueFactory<>("sifra"));
-        vrednostColumn.setCellValueFactory(new PropertyValueFactory<>("vrednost"));
+        datumColumn.setCellValueFactory(new PropertyValueFactory<>("datumZaTabelo"));
+        oznakaColumn.setCellValueFactory(new PropertyValueFactory<>("oznakaZaTabelo"));
+        sifraColumn.setCellValueFactory(new PropertyValueFactory<>("sifraZaTabelo"));
+        vrednostColumn.setCellValueFactory(new PropertyValueFactory<>("vrednostZaTabelo"));
 
         // Add columns to the table
         currencyTable.getColumns().add(datumColumn);
@@ -93,8 +90,14 @@ public class GUI extends Application {
         currencyTable.getColumns().add(sifraColumn);
         currencyTable.getColumns().add(vrednostColumn);
 
-        // Add the table to your scene graph (for example, to your main layout)
-        rootLayout.getChildren().add(currencyTable);
+        currencyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        HBox hbox = new HBox(15);
+        hbox.getChildren().add(currencyTable);
+
+        rootLayout.getChildren().add(hbox);
+
+
 
         // Event listener za gumb za prikaz
         processButton.setOnAction(e -> {
@@ -103,7 +106,7 @@ public class GUI extends Application {
 
             // Error handling za datume
             if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
+                Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Napaka");
                 alert.setHeaderText("Prosimo, izberite veljavna datuma");
                 alert.setContentText("Datum 'od:' naj bo pred datumom 'do:' ");
@@ -117,18 +120,20 @@ public class GUI extends Application {
                 selectedCurrencies.add(abbreviation);
             }
 
-            //process and display data
+            // Procesiranje in prikazovanje podatkov
             DataProcessor dataProcessor = new DataProcessor();
             try {
                 List<CurrencyRate> rates = dataProcessor.retrieveData(startDate, endDate, selectedCurrencies);
                 ObservableList<CurrencyRate> observableRates = FXCollections.observableArrayList(rates);
                 currencyTable.setItems(observableRates);
+
+
+
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
 
         });
-
 
         // Dodatna funkcionalnost
         VBox rightLayout = new VBox(10);
@@ -144,6 +149,7 @@ public class GUI extends Application {
         Label resultLabel = new Label("Rezultat tukaj");
         rightLayout.getChildren().add(resultLabel);
 
+        //Nastavitev za layout
         HBox mainLayout = new HBox(20, rootLayout, rightLayout);
         mainLayout.setPadding(new Insets(10));
 
@@ -157,9 +163,6 @@ public class GUI extends Application {
         Label loadingLabel = new Label("Pripravljam podatke...");
         rootLayout.getChildren().add(loadingLabel);
 
-
-
-
         new Thread(() -> {
             try {
                 DatabaseSetup.initialize();
@@ -172,16 +175,14 @@ public class GUI extends Application {
 
 
                 Platform.runLater(() -> {
-                    loadingLabel.setText("Podatki so pripravljeni!"); // Indicate that data is ready
-                    // You can also initiate actions that should happen after loading is complete
-                    // For instance, populating the currencyListView or other UI elements
+                    loadingLabel.setText("Podatki so pripravljeni!");
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 // Handle exceptions, e.g., show a dialog with the error, log the error, etc.
                 Platform.runLater(() -> {
-                    loadingLabel.setText("Napaka pri pripravi podatkov!"); // Indicate that there was an error
+                    loadingLabel.setText("Napaka pri pripravi podatkov!");
                 });
             }
         }).start();

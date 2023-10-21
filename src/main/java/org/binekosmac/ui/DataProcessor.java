@@ -58,10 +58,7 @@ public class DataProcessor {
             }
             System.out.println(" ");
         }
-
         return rates;
     }
-
-
 }
 
