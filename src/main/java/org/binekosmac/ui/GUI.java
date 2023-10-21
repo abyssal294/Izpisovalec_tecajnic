@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
@@ -30,7 +31,8 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
         // Osnova za okno
         VBox rootLayout = new VBox(10);
-        rootLayout.setPadding(new Insets(10));
+        rootLayout.setAlignment(Pos.CENTER);
+        rootLayout.setPadding(new Insets(5));
 
         // Naslov
         Label titleLabel = new Label("Prikaz tečajnic za evro");
@@ -97,8 +99,6 @@ public class GUI extends Application {
 
         rootLayout.getChildren().add(hbox);
 
-
-
         // Event listener za gumb za prikaz
         processButton.setOnAction(e -> {
             LocalDate startDate = startDatePicker.getValue();
@@ -112,22 +112,20 @@ public class GUI extends Application {
                 alert.setContentText("Datum 'od:' naj bo pred datumom 'do:' ");
                 alert.showAndWait();
             }
+            // Izbrane valute
             ObservableList<String> selectedItems = currencyListView.getSelectionModel().getSelectedItems();
             List<String> selectedCurrencies = new ArrayList<>();
-
+            // Pridobivanje oznake izbranih valut
             for (String item : selectedItems) {
                 String abbreviation = item.substring(item.length() - 3);
                 selectedCurrencies.add(abbreviation);
             }
-
             // Procesiranje in prikazovanje podatkov
             DataProcessor dataProcessor = new DataProcessor();
             try {
                 List<CurrencyRate> rates = dataProcessor.retrieveData(startDate, endDate, selectedCurrencies);
                 ObservableList<CurrencyRate> observableRates = FXCollections.observableArrayList(rates);
                 currencyTable.setItems(observableRates);
-
-
 
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -138,13 +136,26 @@ public class GUI extends Application {
         // Dodatna funkcionalnost
         VBox rightLayout = new VBox(10);
         rightLayout.getChildren().add(new Label("Izračun oportunitetnih zaslužkov/izgub"));
-        ComboBox<String> currencyDropdown1 = new ComboBox<>();
-        ComboBox<String> currencyDropdown2 = new ComboBox<>();
-        rightLayout.getChildren().addAll(currencyDropdown1, currencyDropdown2);
+        List<String> forexCurrencies = Arrays.asList("USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF",
+                "PLN", "RON", "SEK", "ISK", "CHF", "NOK", "TRY",
+                "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS",
+                "INR", "KRW", "MXN", "MYR", "NZD", "PHP", "SGD",
+                "THB", "ZAR");
 
+        Label currency1Label = new Label("Izberite željeno valuto:");
+        Label currency2Label = new Label("Izberite drugo valuto za primerjavo:");
+        ComboBox<String> currencyDropdown1 = new ComboBox<>();
+        currencyDropdown1.getItems().addAll(forexCurrencies);
+        currencyDropdown1.getSelectionModel().selectFirst();
+        ComboBox<String> currencyDropdown2 = new ComboBox<>();
+        currencyDropdown2.getItems().addAll(forexCurrencies);
+        currencyDropdown2.getSelectionModel().select(1);
+        rightLayout.getChildren().addAll(currency1Label, currencyDropdown1, currency2Label, currencyDropdown2);
+
+        Label timeRangeLabel = new Label("Izberite časovno obdobje:");
         ComboBox<String> timeRangeDropdown = new ComboBox<>();
-        timeRangeDropdown.getItems().addAll("1 dan", "1 teden", "1 mesec", "6 mesecev", "1 leto");
-        rightLayout.getChildren().add(timeRangeDropdown);
+        timeRangeDropdown.getItems().addAll("1 teden", "1 mesec", "6 mesecev", "1 leto");
+        rightLayout.getChildren().addAll(timeRangeLabel, timeRangeDropdown);
 
         Label resultLabel = new Label("Rezultat tukaj");
         rightLayout.getChildren().add(resultLabel);
@@ -171,9 +182,6 @@ public class GUI extends Application {
                 DatabaseSaver dbSaver = new DatabaseSaver();
                 dbSaver.save(dtecBS);
 
-                //               displayData();  TODO: na koncu odstrani!
-
-
                 Platform.runLater(() -> {
                     loadingLabel.setText("Podatki so pripravljeni!");
                 });
@@ -188,28 +196,3 @@ public class GUI extends Application {
         }).start();
     }
 }
-//    // TODO: na koncu odstrani!
-//    public static void displayData() {
-//        // SQL query to retrieve the first 50 records from the 'tecajnice' table
-//        String query = "SELECT * FROM tecajnice LIMIT 5";
-//
-//        try (Connection connection = DatabaseConnection.getConnection();
-//             Statement stmt = connection.createStatement();
-//             ResultSet rs = stmt.executeQuery(query)) {
-//
-//            while (rs.next()) {
-//                int id = rs.getInt("id");
-//                String datum = rs.getString("datum");
-//                String oznaka = rs.getString("oznaka");
-//                int sifra = rs.getInt("sifra");
-//                double vrednost = rs.getDouble("vrednost");
-//
-//                System.out.format("ID: %d, Datum: %s, Oznaka: %s, Sifra: %d, Vrednost: %f\n", id, datum, oznaka, sifra, vrednost);
-//            }
-//        } catch (Exception e) {
-//            System.err.println("Error querying the database: " + e.getMessage());
-//            // Optional: Print stack trace for debugging
-//            e.printStackTrace();
-//        }
-//    }
-//}

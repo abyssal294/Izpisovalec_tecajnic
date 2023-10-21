@@ -44,21 +44,9 @@ public class DataProcessor {
             }
         }
 
-        ResultSet resultSet = statement.executeQuery();
-
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        // TODO: na koncu zbriši
-        while (resultSet.next()) {
-            for (int i = 1; i <= columnCount; i++) {
-                if(i > 1) System.out.print(",  ");
-                String columnValue = resultSet.getString(i);
-                System.out.print(columnValue + " " + metaData.getColumnName(i));
-            }
-            System.out.println(" ");
-        }
         return rates;
     }
+
+
 }
 
