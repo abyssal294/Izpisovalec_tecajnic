@@ -30,10 +30,10 @@ public class DatabaseSaver {
                 }
             }
             pstmt.executeBatch();
-            System.out.println("Data saved successfully.");
+            System.out.println("Baza podatkov uspešno populirana.");
         } catch (SQLException e) {
-            System.err.println("Error saving exchange rate data to database: " + e.getMessage());
-            throw new RuntimeException("Error saving data to database", e);
+            System.err.println("Napaka pri shranjevanju v bazo podatkov, ponovno zaženite program: " + e.getMessage());
+            throw new RuntimeException("Napaka pri pripravi podatkov", e);
         }
     }
 }

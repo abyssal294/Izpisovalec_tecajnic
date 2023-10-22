@@ -5,4 +5,7 @@
     <file url="file://$PROJECT_DIR$/src/main/java/org/binekosmac/database/DatabaseSetup.java" dialect="H2" />
     <file url="file://$PROJECT_DIR$/src/main/java/org/binekosmac/ui/GUI.java" dialect="H2" />
   </component>
+  <component name="SqlResolveMappings">
+    <file url="file://$PROJECT_DIR$/src/main/java/org/binekosmac/database/DatabaseSaver.java" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;6ec06b40-7e96-477f-8565-b0cad608a31b&quot;    }   }  } }}" />
+  </component>
 </project>

@@ -78,7 +78,7 @@ public class GUI extends Application {
 
         // Tabela
         TableView<CurrencyRate> currencyTable = new TableView<>();
-        TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum");
+        TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum (leto-mesec-dan)");
         TableColumn<CurrencyRate, String> oznakaColumn = new TableColumn<>("Oznaka");
         TableColumn<CurrencyRate, Integer> sifraColumn = new TableColumn<>("Šifra valute");
         TableColumn<CurrencyRate, Double> vrednostColumn = new TableColumn<>("Tečaj");
@@ -122,7 +122,7 @@ public class GUI extends Application {
                 String abbreviation = item.substring(item.length() - 3);
                 selectedCurrencies.add(abbreviation);
             }
-            // Procesiranje in prikazovanje podatkov
+            // Procesiranje in prikazovanje podatkov v tabelo
             DataProcessor dataProcessor = new DataProcessor();
             try {
                 List<CurrencyRate> rates = dataProcessor.retrieveData(startDate, endDate, selectedCurrencies);
@@ -138,7 +138,7 @@ public class GUI extends Application {
         // Dodatna funkcionalnost: izračun oportuninetnih zaslužkov/izgub
         VBox rightLayout = new VBox(10);
         rightLayout.getChildren().add(new Label("Izračun oportunitetnih zaslužkov/izgub"));
-        List<String> forexCurrencies = Arrays.asList("USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF",
+        List<String> forexCurrencies = Arrays.asList("EUR", "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF",
                 "PLN", "RON", "SEK", "ISK", "CHF", "NOK", "TRY",
                 "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS",
                 "INR", "KRW", "MXN", "MYR", "NZD", "PHP", "SGD",

@@ -88,7 +88,8 @@ public class DataProcessor {
                 percentageChange = percentageChange.setScale(4, RoundingMode.HALF_UP);
 
                 // Izpis rezultata
-                return String.format("%s se je glede na %s spremenil: %s%%", currency1, currency2, percentageChange.toPlainString());
+
+                return String.format("%s se je v obdobju %s glede na %s spremenil: %s%%.", currency1, timeFrame, currency2, percentageChange.toPlainString());
             }
         } catch (SQLException e) {
             // Error handling
@@ -114,7 +115,10 @@ public class DataProcessor {
     }
     // Metoda za pridobitev vrednosti iz baze
     private BigDecimal fetchCurrencyValue(Connection connection, String query, String currency, LocalDate date) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        if("EUR".equals(currency)) {
+            return BigDecimal.ONE;
+        } else {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, currency);
             statement.setDate(2, Date.valueOf(date));
 
@@ -124,7 +128,8 @@ public class DataProcessor {
                 }
             }
         }
-        return null;
+            return null;
+        }
     }
 }
 
