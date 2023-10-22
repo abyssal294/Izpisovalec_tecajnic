@@ -7,7 +7,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -21,10 +24,7 @@ import org.binekosmac.utils.XmlDeserializer;
 import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class GUI extends Application {
@@ -33,7 +33,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
         // Osnova za okno
         VBox rootLayout = new VBox(10);
-        rootLayout.setAlignment(Pos.CENTER);
+        rootLayout.setAlignment(Pos.TOP_CENTER);
         rootLayout.setPadding(new Insets(5));
 
         // Naslov
@@ -88,18 +88,27 @@ public class GUI extends Application {
         sifraColumn.setCellValueFactory(new PropertyValueFactory<>("sifraZaTabelo"));
         vrednostColumn.setCellValueFactory(new PropertyValueFactory<>("vrednostZaTabelo"));
 
-        // Add columns to the table
+        // Dodajanje vrstic v tabelo
         currencyTable.getColumns().add(datumColumn);
         currencyTable.getColumns().add(oznakaColumn);
         currencyTable.getColumns().add(sifraColumn);
         currencyTable.getColumns().add(vrednostColumn);
 
+        currencyTable.setMinWidth(550);
         currencyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        HBox hbox = new HBox(15);
-        hbox.getChildren().add(currencyTable);
+        // Graf
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Datum");
 
-        rootLayout.getChildren().add(hbox);
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Tečaj");
+
+        LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Vrednosti tečajev v izbranem času");
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Valuta");
 
         // Event listener za gumb za prikaz
         processButton.setOnAction(e -> {
@@ -113,6 +122,7 @@ public class GUI extends Application {
                 alert.setHeaderText("Prosimo, izberite veljavna datuma");
                 alert.setContentText("Datum 'od:' naj bo pred datumom 'do:' ");
                 alert.showAndWait();
+                return;
             }
             // Izbrane valute
             ObservableList<String> selectedItems = currencyListView.getSelectionModel().getSelectedItems();
@@ -125,9 +135,43 @@ public class GUI extends Application {
             // Procesiranje in prikazovanje podatkov v tabelo
             DataProcessor dataProcessor = new DataProcessor();
             try {
+                // Podatki za tabeloin graf
                 List<CurrencyRate> rates = dataProcessor.retrieveData(startDate, endDate, selectedCurrencies);
                 ObservableList<CurrencyRate> observableRates = FXCollections.observableArrayList(rates);
                 currencyTable.setItems(observableRates);
+
+                // Brisanje predhodnega grafa
+                lineChart.getData().clear();
+
+            // Podatki za graf
+                // Mapa za shranjevanje podatkov za posamezno valuto
+                Map<String, XYChart.Series<String, Number>> seriesMap = new HashMap<>();
+                // Serija za posamezne valute
+                for(String currency : selectedCurrencies) {
+                    XYChart.Series<String, Number> currentSeries = new XYChart.Series<>();
+                    currentSeries.setName(currency);
+                    seriesMap.put(currency, currentSeries);
+                }
+                // Vstavljanje podatkov v serije
+                for (CurrencyRate rate : rates) {
+                    String dateAsString = rate.getDatumZaTabelo().toString(); // Or format as needed
+                    Number value = rate.getVrednostZaTabelo();
+                    String currency = rate.getOznakaZaTabelo();
+
+                    XYChart.Series<String, Number> currentSeries = seriesMap.get(currency);
+                    if (currentSeries != null) {
+                        currentSeries.getData().add(new XYChart.Data<>(dateAsString, value));
+                    }
+                }
+                // Dodajanje serij v graf
+                for (XYChart.Series<String, Number> currencySeries : seriesMap.values()) {
+                        lineChart.getData().add(currencySeries);
+                    }
+
+                // Vzpostavitev tabele in grafa v okno
+                HBox hbox = new HBox();
+                hbox.getChildren().addAll(currencyTable, lineChart);
+                rootLayout.getChildren().add(hbox);
 
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -186,7 +230,7 @@ public class GUI extends Application {
 
         //Nastavitev za layout
         HBox mainLayout = new HBox(20, rootLayout, rightLayout);
-        mainLayout.setPadding(new Insets(10));
+        mainLayout.setPadding(new Insets(5));
 
         Scene scene = new Scene(mainLayout, 1000, 600);
         primaryStage.setTitle("Izpis tečajnic");

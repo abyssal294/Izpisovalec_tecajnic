@@ -46,7 +46,6 @@ public class DataProcessor {
                 rates.add(new CurrencyRate(datum, oznaka, sifra, vrednost));
             }
         }
-
         return rates;
     }
 
