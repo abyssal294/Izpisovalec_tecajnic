@@ -283,9 +283,7 @@ public class GUI extends Application {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Platform.runLater(() -> {
-                    loadingLabel.setText("Napaka pri pripravi podatkov! Preverite svojo internetno povezavo in ponovno zaženite program.");
-                });
+                Platform.runLater(() -> loadingLabel.setText("Napaka pri pripravi podatkov! Preverite svojo internetno povezavo in ponovno zaženite program."));
             }
         }).start();
     }
