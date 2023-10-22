@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
@@ -21,7 +22,6 @@ import org.binekosmac.model.DtecBS;
 import org.binekosmac.utils.XmlDeserializer;
 
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -36,8 +36,13 @@ public class GUI extends Application {
         rootLayout.setAlignment(Pos.TOP_CENTER);
         rootLayout.setPadding(new Insets(5));
 
+        Separator verticalSeparator = new Separator();
+        verticalSeparator.setOrientation(Orientation.VERTICAL);
+        verticalSeparator.setStyle("-fx-background-color: #000000;");
+
         // Naslov
         Label titleLabel = new Label("Prikaz tečajnic za evro");
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
         rootLayout.getChildren().add(titleLabel);
 
         // Datuma
@@ -71,6 +76,7 @@ public class GUI extends Application {
                 "Litvanski litas (nadomestil evro 1.1.2015) - LTL", "Hrvaška kuna (nadomestil evro 1.1.2023) - HRK",
                 "Estonska krona (nadomestil evro 1.1.2011) - EEK");
         currencyListView.getItems().addAll(currencies);
+        currencyListView.setMinHeight(75);
 
         // Gumb za prikaz
         Button processButton = new Button("Prikaz");
@@ -78,7 +84,7 @@ public class GUI extends Application {
 
         // Tabela
         TableView<CurrencyRate> currencyTable = new TableView<>();
-        TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum (leto-mesec-dan)");
+        TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum (L-M-D)");
         TableColumn<CurrencyRate, String> oznakaColumn = new TableColumn<>("Oznaka");
         TableColumn<CurrencyRate, Integer> sifraColumn = new TableColumn<>("Šifra valute");
         TableColumn<CurrencyRate, Double> vrednostColumn = new TableColumn<>("Tečaj");
@@ -94,7 +100,8 @@ public class GUI extends Application {
         currencyTable.getColumns().add(sifraColumn);
         currencyTable.getColumns().add(vrednostColumn);
 
-        currencyTable.setMinWidth(550);
+        currencyTable.setMinWidth(400);
+        currencyTable.setMaxHeight(500);
         currencyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Graf
@@ -106,6 +113,7 @@ public class GUI extends Application {
 
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Vrednosti tečajev v izbranem času");
+        lineChart.setMinSize(550, 550);
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Valuta");
@@ -146,6 +154,7 @@ public class GUI extends Application {
             // Podatki za graf
                 // Mapa za shranjevanje podatkov za posamezno valuto
                 Map<String, XYChart.Series<String, Number>> seriesMap = new HashMap<>();
+
                 // Serija za posamezne valute
                 for(String currency : selectedCurrencies) {
                     XYChart.Series<String, Number> currentSeries = new XYChart.Series<>();
@@ -168,10 +177,11 @@ public class GUI extends Application {
                         lineChart.getData().add(currencySeries);
                     }
 
-                // Vzpostavitev tabele in grafa v okno
+            // Vzpostavitev tabele in grafa v okno
                 HBox hbox = new HBox();
                 hbox.getChildren().addAll(currencyTable, lineChart);
                 rootLayout.getChildren().add(hbox);
+                primaryStage.setMaximized(true);
 
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -179,40 +189,54 @@ public class GUI extends Application {
 
         });
 
-        // Dodatna funkcionalnost: izračun oportuninetnih zaslužkov/izgub
+    // Dodatna funkcionalnost: izračun oportuninetnih zaslužkov/izgub
         VBox rightLayout = new VBox(10);
-        rightLayout.getChildren().add(new Label("Izračun oportunitetnih zaslužkov/izgub"));
+        Label forexLabel = new Label("Izračun oportunitetnih zaslužkov/izgub");
+        forexLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+        rightLayout.getChildren().add(forexLabel);
+        // Seznam valut, katerih podatki so na voljo v zadnjem letu dni
         List<String> forexCurrencies = Arrays.asList("EUR", "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF",
                 "PLN", "RON", "SEK", "ISK", "CHF", "NOK", "TRY",
                 "AUD", "BRL", "CAD", "CNY", "HKD", "IDR", "ILS",
                 "INR", "KRW", "MXN", "MYR", "NZD", "PHP", "SGD",
                 "THB", "ZAR");
-
+        // Napisi za dropdown menuje
         Label currency1Label = new Label("Izberite željeno valuto:");
         Label currency2Label = new Label("Izberite drugo valuto za primerjavo:");
 
+        // Dropdown menu za 1. valuto
         ComboBox<String> currencyDropdown1 = new ComboBox<>();
         currencyDropdown1.getItems().addAll(forexCurrencies);
         currencyDropdown1.getSelectionModel().selectFirst();
 
+        // Dropdown menu za 2. valuto
         ComboBox<String> currencyDropdown2 = new ComboBox<>();
         currencyDropdown2.getItems().addAll(forexCurrencies);
         currencyDropdown2.getSelectionModel().select(1);
 
-        rightLayout.getChildren().addAll(currency1Label, currencyDropdown1, currency2Label, currencyDropdown2);
-
+        // Dropdown menu za časovno obdobje
         Label timeRangeLabel = new Label("Izberite časovno obdobje:");
         ComboBox<String> timeRangeDropdown = new ComboBox<>();
         timeRangeDropdown.getItems().addAll("1 teden", "1 mesec", "6 mesecev", "1 leto");
 
-        rightLayout.getChildren().addAll(timeRangeLabel, timeRangeDropdown);
-
+        // Gumb za izračun
         Button calculateButton = new Button("Izračunaj");
 
+        // Izpis rezultata
         Label resultLabel = new Label("Tukaj se bo izpisal izračun");
-        rightLayout.getChildren().addAll(calculateButton, resultLabel);
+
+        // Scroll pane, da rezultat ne izgine iz ekrana pri manjših zaslonih
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color:transparent;");
+        scrollPane.setContent(resultLabel);
+
+        // Dodajanje elementov za oportuninetne zaslužke/izgube v layout
+        rightLayout.getChildren().addAll(currency1Label, currencyDropdown1, currency2Label, currencyDropdown2,
+                timeRangeLabel, timeRangeDropdown,calculateButton, scrollPane);
 
 
+        // Event listener za gumb za oportunitetne zaslužke/izgube
         calculateButton.setOnAction(event -> {
             String selectedCurrency1 = currencyDropdown1.getSelectionModel().getSelectedItem();
             String selectedCurrency2 = currencyDropdown2.getSelectionModel().getSelectedItem();
@@ -229,13 +253,14 @@ public class GUI extends Application {
         });
 
         //Nastavitev za layout
-        HBox mainLayout = new HBox(20, rootLayout, rightLayout);
-        mainLayout.setPadding(new Insets(5));
+        HBox mainLayout = new HBox(20);
+        mainLayout.getChildren().addAll(rootLayout, verticalSeparator, rightLayout);
+        mainLayout.setAlignment(Pos.TOP_CENTER);
+        mainLayout.setPadding(new Insets(15, 5, 15, 5));
 
         Scene scene = new Scene(mainLayout, 1000, 600);
         primaryStage.setTitle("Izpis tečajnic");
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
         primaryStage.show();
 
 
@@ -256,7 +281,6 @@ public class GUI extends Application {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                // Handle exceptions, e.g., show a dialog with the error, log the error, etc.
                 Platform.runLater(() -> {
                     loadingLabel.setText("Napaka pri pripravi podatkov! Ponovno zaženite program.");
                 });
