@@ -262,10 +262,11 @@ public class GUI extends Application {
 
         // Loading screen
         ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setPrefSize(300, 300);
         progressIndicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
         Label loadingLabel = new Label("Pripravljam podatke...");
         loadingLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
-        mainLayout.getChildren().addAll(loadingLabel, progressIndicator);
+        mainLayout.getChildren().addAll(progressIndicator, loadingLabel);
 
         new Thread(() -> {
             try {
