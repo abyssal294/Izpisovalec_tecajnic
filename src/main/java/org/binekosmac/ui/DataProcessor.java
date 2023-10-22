@@ -88,7 +88,7 @@ public class DataProcessor {
 
                 // Izpis rezultata
 
-                return String.format("%s se je v obdobju %s glede na %s spremenil: %s%%.", currency1, timeFrame, currency2, percentageChange.toPlainString());
+                return String.format("%s%%", percentageChange.toPlainString());
             }
         } catch (SQLException e) {
             // Error handling

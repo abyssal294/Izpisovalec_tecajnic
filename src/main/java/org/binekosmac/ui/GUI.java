@@ -32,7 +32,7 @@ public class GUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Osnova za levo okno
-        VBox rootLayout = new VBox(10);
+        VBox rootLayout = new VBox(15);
         rootLayout.setAlignment(Pos.TOP_CENTER);
         rootLayout.setPadding(new Insets(5));
 
@@ -57,7 +57,7 @@ public class GUI extends Application {
         rootLayout.getChildren().add(currencyPickingInstructions);
 
         ListView<String> currencyListView = new ListView<>();
-        currencyListView.setPrefHeight(150);
+        currencyListView.setMinHeight(150);
         rootLayout.getChildren().add(currencyListView);
         currencyListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         List<String> currencies = Arrays.asList("Ameriški dolar - USD", "Japonski jen - JPY", "Bolgarski lev - BGN",
@@ -223,19 +223,15 @@ public class GUI extends Application {
         timeRangeDropdown.getItems().addAll("1 teden", "1 mesec", "6 mesecev", "1 leto");
 
         // Gumb za izračun
-        Button calculateButton = new Button("Izračunaj");
+        Button calculateButton = new Button("Izračun");
 
         // Izpis rezultata
-        Label resultLabel = new Label("Tukaj se bo izpisal izračun");
-
-        // Scroll pane, da rezultat ne izgine iz ekrana pri manjših zaslonih
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setStyle("-fx-background-color:transparent;");
-        scrollPane.setContent(resultLabel);
+        Label resultLabel = new Label();
+        resultLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 30px;");
 
         // Dodajanje elementov za oportuninetne zaslužke/izgube v layout
         rightLayout.getChildren().addAll(currency1Label, currencyDropdown1, currency2Label, currencyDropdown2,
-                timeRangeLabel, timeRangeDropdown,calculateButton, scrollPane);
+                timeRangeLabel, timeRangeDropdown,calculateButton, resultLabel);
 
 
         // Event listener za gumb za oportunitetne zaslužke/izgube
@@ -256,8 +252,7 @@ public class GUI extends Application {
 
         // Krovne nastavitve za layout
         HBox mainLayout = new HBox(20);
-        mainLayout.getChildren().addAll(rootLayout, verticalSeparator, rightLayout);
-        mainLayout.setAlignment(Pos.TOP_CENTER);
+        mainLayout.setAlignment(Pos.CENTER);
         mainLayout.setPadding(new Insets(15, 5, 15, 5));
 
         Scene scene = new Scene(mainLayout, 1000, 600);
@@ -265,13 +260,16 @@ public class GUI extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
+        // Loading screen
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
         Label loadingLabel = new Label("Pripravljam podatke...");
         loadingLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
-        rootLayout.getChildren().add(loadingLabel);
+        mainLayout.getChildren().addAll(loadingLabel, progressIndicator);
 
         new Thread(() -> {
             try {
+                // Prenašanje XML, prepisovanje XML v Java object, shranjevanje v bazo
                 DatabaseSetup.initialize();
                 XmlDeserializer xmlDeserializer = new XmlDeserializer();
                 DtecBS dtecBS = xmlDeserializer.processXML();
@@ -279,8 +277,10 @@ public class GUI extends Application {
                 dbSaver.save(dtecBS);
 
                 Platform.runLater(() -> {
-                    loadingLabel.setStyle("-fx-font-weight: normal; -fx-font-size: 12px;");
-                    loadingLabel.setText("Podatki so pripravljeni!");
+                    mainLayout.getChildren().remove(loadingLabel);
+                    mainLayout.getChildren().remove(progressIndicator);
+                    mainLayout.setAlignment(Pos.TOP_CENTER);
+                    mainLayout.getChildren().addAll(rootLayout, verticalSeparator, rightLayout);
                 });
 
             } catch (Exception e) {
