@@ -47,6 +47,11 @@ public class DataProcessor {
 
                 rates.add(new CurrencyRate(datum, oznaka, sifra, vrednost));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Zapiranje povezave
+            DatabaseConnection.closeConnection();
         }
         return rates;
     }
@@ -96,22 +101,23 @@ public class DataProcessor {
             // Error handling
             e.printStackTrace();
             return "Pri pripravi podatkov je prišlo do napake. Prosim, da znova zaženete program.";
+        } finally {
+            try {
+                DatabaseConnection.closeConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
     // Metoda za definiranje začetnega datuma
     private LocalDate calculateStartDate(LocalDate endDate, String timeFrame) {
-        switch (timeFrame) {
-            case "1 teden":
-                return endDate.minus(1, ChronoUnit.WEEKS);
-            case "1 mesec":
-                return endDate.minus(1, ChronoUnit.MONTHS);
-            case "6 mesecev":
-                return endDate.minus(6, ChronoUnit.MONTHS);
-            case "1 leto":
-                return endDate.minus(1, ChronoUnit.YEARS);
-            default:
-                throw new IllegalArgumentException("Težava pri izbiri časovnega obdobja.");
-        }
+        return switch (timeFrame) {
+            case "1 teden" -> endDate.minus(1, ChronoUnit.WEEKS);
+            case "1 mesec" -> endDate.minus(1, ChronoUnit.MONTHS);
+            case "6 mesecev" -> endDate.minus(6, ChronoUnit.MONTHS);
+            case "1 leto" -> endDate.minus(1, ChronoUnit.YEARS);
+            default -> throw new IllegalArgumentException("Težava pri izbiri časovnega obdobja.");
+        };
     }
     // Metoda za pridobitev vrednosti iz baze
     private BigDecimal fetchCurrencyValue(Connection connection, String query, String currency, LocalDate date) throws SQLException {

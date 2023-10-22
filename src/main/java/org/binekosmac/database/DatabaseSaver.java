@@ -34,6 +34,8 @@ public class DatabaseSaver {
         } catch (SQLException e) {
             System.err.println("Napaka pri shranjevanju v bazo podatkov, ponovno zaženite program: " + e.getMessage());
             throw new RuntimeException("Napaka pri pripravi podatkov", e);
+        } finally {
+            DatabaseConnection.closeConnection();
         }
     }
 }
