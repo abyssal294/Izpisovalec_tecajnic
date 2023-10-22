@@ -40,7 +40,7 @@ public class GUI extends Application {
         verticalSeparator.setOrientation(Orientation.VERTICAL);
         verticalSeparator.setStyle("-fx-background-color: #000000;");
 
-        // Naslov
+        // Naslov levega okna
         Label titleLabel = new Label("Prikaz tečajnic za evro");
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
         rootLayout.getChildren().add(titleLabel);
@@ -51,7 +51,6 @@ public class GUI extends Application {
         DatePicker endDatePicker = new DatePicker();
         dateLayout.getChildren().addAll(new Label("Od:"), startDatePicker, new Label("Do:"), endDatePicker);
         rootLayout.getChildren().add(dateLayout);
-
 
         // Izbira valut z informacijami o datumih, ko so podatki na voljo
         Label currencyPickingInstructions = new Label("Izberite valute (za izbiro več valut držite CTRL (Windows) ali COMMAND (Mac): ");
@@ -109,6 +108,7 @@ public class GUI extends Application {
         xAxis.setLabel("Datum");
 
         NumberAxis yAxis = new NumberAxis();
+        yAxis.setForceZeroInRange(false);
         yAxis.setLabel("Tečaj");
 
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
@@ -135,6 +135,7 @@ public class GUI extends Application {
             // Izbrane valute
             ObservableList<String> selectedItems = currencyListView.getSelectionModel().getSelectedItems();
             List<String> selectedCurrencies = new ArrayList<>();
+
             // Pridobivanje oznake izbranih valut
             for (String item : selectedItems) {
                 String abbreviation = item.substring(item.length() - 3);
@@ -172,6 +173,7 @@ public class GUI extends Application {
                         currentSeries.getData().add(new XYChart.Data<>(dateAsString, value));
                     }
                 }
+
                 // Dodajanje serij v graf
                 for (XYChart.Series<String, Number> currencySeries : seriesMap.values()) {
                         lineChart.getData().add(currencySeries);
@@ -188,6 +190,7 @@ public class GUI extends Application {
             }
 
         });
+
 
     // Dodatna funkcionalnost: izračun oportuninetnih zaslužkov/izgub
         VBox rightLayout = new VBox(10);
@@ -227,7 +230,6 @@ public class GUI extends Application {
 
         // Scroll pane, da rezultat ne izgine iz ekrana pri manjših zaslonih
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background-color:transparent;");
         scrollPane.setContent(resultLabel);
 
