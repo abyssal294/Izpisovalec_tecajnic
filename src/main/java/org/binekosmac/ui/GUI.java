@@ -31,7 +31,7 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Osnova za okno
+        // Osnova za levo okno
         VBox rootLayout = new VBox(10);
         rootLayout.setAlignment(Pos.TOP_CENTER);
         rootLayout.setPadding(new Insets(5));
@@ -252,7 +252,7 @@ public class GUI extends Application {
             }
         });
 
-        //Nastavitev za layout
+        // Krovne nastavitve za layout
         HBox mainLayout = new HBox(20);
         mainLayout.getChildren().addAll(rootLayout, verticalSeparator, rightLayout);
         mainLayout.setAlignment(Pos.TOP_CENTER);
@@ -265,6 +265,7 @@ public class GUI extends Application {
 
 
         Label loadingLabel = new Label("Pripravljam podatke...");
+        loadingLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
         rootLayout.getChildren().add(loadingLabel);
 
         new Thread(() -> {
@@ -276,13 +277,14 @@ public class GUI extends Application {
                 dbSaver.save(dtecBS);
 
                 Platform.runLater(() -> {
+                    loadingLabel.setStyle("-fx-font-weight: normal; -fx-font-size: 12px;");
                     loadingLabel.setText("Podatki so pripravljeni!");
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    loadingLabel.setText("Napaka pri pripravi podatkov! Ponovno zaženite program.");
+                    loadingLabel.setText("Napaka pri pripravi podatkov! Preverite svojo internetno povezavo in ponovno zaženite program.");
                 });
             }
         }).start();
