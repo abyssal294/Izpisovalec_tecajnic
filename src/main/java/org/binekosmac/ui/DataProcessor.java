@@ -9,11 +9,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.RoundingMode;
-
+    // Del backenda za pridobivanje podatkov iz baze
 public class DataProcessor {
+    // Priprava podatkov iz baze za tabelo in graf
     public List<CurrencyRate> retrieveData(LocalDate startDate, LocalDate endDate, List<String> currencies) throws SQLException {
+        // SQL string
         StringBuilder queryBuilder = new StringBuilder("SELECT * FROM tecajnice WHERE datum BETWEEN ? AND ? AND oznaka IN (");
-
+        // Sprotno prilagajanje stringa
         for (int i = 0; i < currencies.size(); i++) {
             queryBuilder.append("?");
             if (i < currencies.size() - 1) {
@@ -22,19 +24,19 @@ public class DataProcessor {
         }
         queryBuilder.append(")");
         queryBuilder.append("ORDER BY oznaka");
-
+        // Povezava z bazo
         Connection connection = DatabaseConnection.getConnection();
-
+        // Priprava SQL stavka
         PreparedStatement statement = connection.prepareStatement(queryBuilder.toString());
-
+        // Casting datuma iz LocalDate v Date
         statement.setDate(1, Date.valueOf(startDate));
         statement.setDate(2, Date.valueOf(endDate));
-
+        // Dodajanje valut v SQL stavku
         int index = 3;
         for (String currency : currencies) {
             statement.setString(index++, currency);
         }
-
+        // Izvedba SQL stavka in shranjevanje rezultatov
         List<CurrencyRate> rates = new ArrayList<>();
         try (ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
@@ -48,7 +50,7 @@ public class DataProcessor {
         }
         return rates;
     }
-
+    // Iskanje in priprava podatkov za izračun oportunitetnih zaslužkov/izgub
     public String calculateForexData(String currency1, String currency2, String timeFrame) {
         try {
             // Današnji dan (dinamično) in glede na le-tega, izračun začetnega datuma
@@ -96,9 +98,8 @@ public class DataProcessor {
             return "Pri pripravi podatkov je prišlo do napake. Prosim, da znova zaženete program.";
         }
     }
-
+    // Metoda za definiranje začetnega datuma
     private LocalDate calculateStartDate(LocalDate endDate, String timeFrame) {
-        // Izračun časovnega obdobja
         switch (timeFrame) {
             case "1 teden":
                 return endDate.minus(1, ChronoUnit.WEEKS);

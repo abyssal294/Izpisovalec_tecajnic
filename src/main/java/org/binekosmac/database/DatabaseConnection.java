@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-
     private static final String DATABASE_URL = "jdbc:h2:file:./data/db";
     private static final String USERNAME = "sa";
     private static final String PASSWORD = "";

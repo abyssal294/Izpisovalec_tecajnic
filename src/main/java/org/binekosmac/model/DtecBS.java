@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
-
+    // Shema za parsing XML dokumenta za Jackson
 @JacksonXmlRootElement(localName = "DtecBS", namespace = "http://www.bsi.si")
 public class DtecBS {
 

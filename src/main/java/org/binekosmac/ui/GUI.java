@@ -45,7 +45,7 @@ public class GUI extends Application {
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
         rootLayout.getChildren().add(titleLabel);
 
-        // Datuma
+        // Izbor datuma
         HBox dateLayout = new HBox(10);
         DatePicker startDatePicker = new DatePicker();
         DatePicker endDatePicker = new DatePicker();
@@ -55,7 +55,7 @@ public class GUI extends Application {
         // Izbira valut z informacijami o datumih, ko so podatki na voljo
         Label currencyPickingInstructions = new Label("Izberite valute (za izbiro več valut držite CTRL (Windows) ali COMMAND (Mac): ");
         rootLayout.getChildren().add(currencyPickingInstructions);
-
+        // Statični vnos vseh valut, ki so bile ali so na voljo od 1.1.2007 ali kasneje
         ListView<String> currencyListView = new ListView<>();
         currencyListView.setMinHeight(150);
         rootLayout.getChildren().add(currencyListView);
@@ -81,6 +81,9 @@ public class GUI extends Application {
         Button processButton = new Button("Prikaz");
         rootLayout.getChildren().add(processButton);
 
+    // Hbox za tabelo in graf
+        HBox hbox = new HBox();
+
         // Tabela
         TableView<CurrencyRate> currencyTable = new TableView<>();
         TableColumn<CurrencyRate, LocalDate> datumColumn = new TableColumn<>("Datum (L-M-D)");
@@ -93,7 +96,6 @@ public class GUI extends Application {
         sifraColumn.setCellValueFactory(new PropertyValueFactory<>("sifraZaTabelo"));
         vrednostColumn.setCellValueFactory(new PropertyValueFactory<>("vrednostZaTabelo"));
 
-        // Dodajanje vrstic v tabelo
         currencyTable.getColumns().add(datumColumn);
         currencyTable.getColumns().add(oznakaColumn);
         currencyTable.getColumns().add(sifraColumn);
@@ -132,9 +134,21 @@ public class GUI extends Application {
                 alert.showAndWait();
                 return;
             }
+
             // Izbrane valute
             ObservableList<String> selectedItems = currencyListView.getSelectionModel().getSelectedItems();
             List<String> selectedCurrencies = new ArrayList<>();
+
+            // Error handling za valute
+            if (selectedItems.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Napaka");
+                alert.setHeaderText("Prosimo, izberite vsaj eno valuto iz seznama");
+                alert.setContentText("Za izbiro več valut držite CTRL (Windows) ali COMMAND (Mac) in klikajte z levo miškino tipko," +
+                        " ali pa držite SHIFT za izbiro več zaporednih valut.");
+                alert.showAndWait();
+                return;
+            }
 
             // Pridobivanje oznake izbranih valut
             for (String item : selectedItems) {
@@ -180,7 +194,6 @@ public class GUI extends Application {
                     }
 
             // Vzpostavitev tabele in grafa v okno
-                HBox hbox = new HBox();
                 hbox.getChildren().addAll(currencyTable, lineChart);
                 rootLayout.getChildren().add(hbox);
                 primaryStage.setMaximized(true);
@@ -229,9 +242,18 @@ public class GUI extends Application {
         Label resultLabel = new Label();
         resultLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 30px;");
 
+        // Opomnik za uporabo programa
+        Label reminderLabel1 = new Label("Opomba: ");
+        Label reminderLabel2 = new Label("Banka Slovenije objavlja referenčne");
+        Label reminderLabel3 = new Label("tečaje med delovniki, po 16:15. uri.");
+        Label reminderLabel4 = new Label("Ker program pridobi podatke le ob");
+        Label reminderLabel5 = new Label("zagonu, priporočamo, da program");
+        Label reminderLabel6 = new Label("po vsaki uporabi zaprete.");
+
         // Dodajanje elementov za oportuninetne zaslužke/izgube v layout
         rightLayout.getChildren().addAll(currency1Label, currencyDropdown1, currency2Label, currencyDropdown2,
-                timeRangeLabel, timeRangeDropdown,calculateButton, resultLabel);
+                timeRangeLabel, timeRangeDropdown,calculateButton, resultLabel, reminderLabel1, reminderLabel2,
+                reminderLabel3, reminderLabel4, reminderLabel5, reminderLabel6);
 
 
         // Event listener za gumb za oportunitetne zaslužke/izgube
@@ -278,6 +300,7 @@ public class GUI extends Application {
                 dbSaver.save(dtecBS);
 
                 Platform.runLater(() -> {
+                    // Prenos iz loading screena v program
                     mainLayout.getChildren().remove(loadingLabel);
                     mainLayout.getChildren().remove(progressIndicator);
                     mainLayout.setAlignment(Pos.TOP_CENTER);
