@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class XmlDeserializer {
-
     private static final String XML_SOURCE_URL = "https://www.bsi.si/_data/tecajnice/dtecbs-l.xml";
 
     public DtecBS processXML () throws IOException {
@@ -39,8 +38,6 @@ public class XmlDeserializer {
 
             reader.close();
             connection.disconnect();
-
-//            System.out.println("Fetched XML data: " + response.toString());
 
             return response.toString();
 
