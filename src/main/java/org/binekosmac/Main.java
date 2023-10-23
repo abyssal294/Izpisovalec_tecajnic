@@ -315,7 +315,7 @@ public class Main extends Application {
             }
         }).start();
     }
-
+    // Samo zavoljo muh JavaFX
         public static void main(String[] args) {
             launch(args);
     }
