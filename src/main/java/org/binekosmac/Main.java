@@ -311,7 +311,14 @@ public class Main extends Application {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                loadingLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
                 Platform.runLater(() -> loadingLabel.setText("Napaka pri pripravi podatkov! Preverite svojo internetno povezavo in ponovno zaženite program."));
+                try {
+                    Thread.sleep(10000);
+                    System.exit(400);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }).start();
     }
